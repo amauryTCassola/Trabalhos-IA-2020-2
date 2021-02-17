@@ -129,7 +129,7 @@ def expande(nodo):
 if __name__ == '__main__':
 
     if len(sys.argv) < 3:
-        print("usage: avalia_expande.sh estado")
+        print("usage: avalia_expande.sh estado custo")
 
     else:
         estado = sys.argv[1]
