@@ -1,3 +1,2 @@
 #!/bin/bash
-py expande.py $@
-$SHELL
+python3 src/expande.py $@

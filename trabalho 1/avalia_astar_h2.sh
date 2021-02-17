@@ -1,2 +1,2 @@
 #!/bin/bash
-py astar_h2.py $@
+python3 src/astar_h2.py $@

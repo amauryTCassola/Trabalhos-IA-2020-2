@@ -1,5 +1,5 @@
 import sys
-from collections import deque
+import heapq
 
 class Node:
     """Classe representando um nodo no grafo de busca"""
@@ -8,6 +8,9 @@ class Node:
         self.estado = estado
         self.acao = acao
         self.custo = custo
+
+    def __lt__(self, other):
+        return self.custo < other.custo
 
 vazio = "_"
 estado_objetivo = "12345678_"
@@ -132,9 +135,40 @@ def node_in_list(node, list):
             return True
     return False
 
-def breadth_first_search(s):
+def push_node_into_heap(node, cost, heap):
+    heapq.heappush(heap, (cost, node))
+
+def pop_node_from_heap(heap):
+    heap_item = heapq.heappop(heap)
+    return heap_item[1]
+
+def calcula_distancia_manhattan(pos1, pos2):
+    x_pos1 = pos1 % 3 
+    '''resto da divisão inteira por 3'''
+    y_pos1 = pos1 // 3
+    '''floor da divisão inteira por 3'''
+
+    x_pos2 = pos2 % 3
+    y_pos2 = pos2 // 3
+
+    return abs(x_pos1 - x_pos2) + abs(y_pos1 - y_pos2)
+
+def compute_heuristic_h2(node):
+    estado_atual = node.estado
+    custo_h2 = 0
+    for index in range(0, len(estado_atual)):
+        caractere_atual = estado_atual[index]
+        if caractere_atual != "_":
+            index_objetivo = estado_objetivo.index(caractere_atual)
+            custo_h2 += calcula_distancia_manhattan(index, index_objetivo)
+    return custo_h2
+
+def compute_heuristic(node):
+    return compute_heuristic_h2(node)
+
+def a_star_search(s):
     ''''
-    busca em largura (BFS)
+    busca A*
     Argumentos:
     nodo
     Retorna: caminho
@@ -142,9 +176,9 @@ def breadth_first_search(s):
     caminho = ""
     x = []
     f = []
-    f.append(s)
+    push_node_into_heap(s, compute_heuristic(s), f)
     while f:
-        v = f.pop(0)
+        v = pop_node_from_heap(f)
         
         if v.estado == estado_objetivo:
             while v.acao != None:
@@ -155,19 +189,18 @@ def breadth_first_search(s):
         if not node_in_list(v,x):
             x.append(v)
             for item in expande(v):
-                f.append(item)
+                push_node_into_heap(item, compute_heuristic(item)+item.custo, f)
 
     return "FALHA"
 
 if __name__ == '__main__':
-
+    
     if len(sys.argv) < 2:
-        print("usage: avalia_bfs.sh estado")
+        print("usage: avalia_astar_h1.sh estado")
 
     else:
         estado = sys.argv[1]
         custo = 0
         nodo = Node(None, estado, None, custo)
-        
-        resultado = breadth_first_search(nodo)
+        resultado = a_star_search(nodo)
         print(resultado)

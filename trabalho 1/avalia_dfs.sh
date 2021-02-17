@@ -1,2 +1,2 @@
 #!/bin/bash
-py dfs.py $@
+python3 src/dfs.py $@

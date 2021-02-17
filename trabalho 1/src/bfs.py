@@ -1,5 +1,4 @@
 import sys
-from collections import deque
 
 class Node:
     """Classe representando um nodo no grafo de busca"""
@@ -97,9 +96,9 @@ def sucessor(estado):
     '''
     lista_sucessores = []
 
-    lista_sucessores.append(('direita', acao_direita(estado)))
     lista_sucessores.append(('acima', acao_cima(estado)))
     lista_sucessores.append(('abaixo', acao_baixo(estado)))
+    lista_sucessores.append(('direita', acao_direita(estado)))
     lista_sucessores.append(('esquerda', acao_esquerda(estado)))
 
     for sucessor_item in lista_sucessores:
@@ -132,7 +131,7 @@ def node_in_list(node, list):
             return True
     return False
 
-def depth_first_search(s):
+def breadth_first_search(s):
     ''''
     busca em largura (BFS)
     Argumentos:
@@ -144,32 +143,30 @@ def depth_first_search(s):
     f = []
     f.append(s)
     while f:
-        v = f.pop()
+        v = f.pop(0)
         
         if v.estado == estado_objetivo:
             while v.acao != None:
-                caminho += v.acao + " "
+                caminho = v.acao + " " + caminho
                 v = v.pai
             return(caminho)
                 
-
         if not node_in_list(v,x):
             x.append(v)
             for item in expande(v):
                 f.append(item)
-                        
+
+    return "FALHA"
 
 if __name__ == '__main__':
 
     if len(sys.argv) < 2:
-        print("usage: avalia_dfs.sh estado")
+        print("usage: avalia_bfs.sh estado")
 
     else:
         estado = sys.argv[1]
         custo = 0
         nodo = Node(None, estado, None, custo)
         
-        resultado = depth_first_search(nodo)
+        resultado = breadth_first_search(nodo)
         print(resultado)
-    
-        

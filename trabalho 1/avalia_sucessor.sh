@@ -1,3 +1,2 @@
 #!/bin/bash
-py sucessor.py $@
-$SHELL
+python3 src/sucessor.py $@

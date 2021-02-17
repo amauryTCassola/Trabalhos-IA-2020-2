@@ -1,13 +1,5 @@
 import sys
 
-class Node:
-    """Classe representando um nodo no grafo de busca"""
-    def __init__(self, pai, estado, acao, custo):
-        self.pai = pai
-        self.estado = estado
-        self.acao = acao
-        self.custo = custo
-
 vazio = "_"
 
 def acao_cima(estado):
@@ -90,6 +82,10 @@ def sucessor(estado):
     Argumentos:
     estado -- o estado atual do 8-puzzle, formatado como '12345678_'
 
+    123
+    456
+    78_
+
     Retorna: lista de pares (ação, estado)
 
     '''
@@ -106,35 +102,11 @@ def sucessor(estado):
 
     return lista_sucessores
 
-def expande(nodo):
-    '''
-    expande um nodo, retornando seus vizinhos
-
-    Argumentos:
-    nodo -- o nodo a ser expandido, respeitando a classe Node
-
-    Retorna: lista de nodos vizinhos
-    '''
-
-    lista_nodos_sucessores = []
-    lista_estados_sucessores = sucessor(nodo.estado)
-    for item in lista_estados_sucessores:
-        novoNodo = Node(nodo, item[1], item[0], nodo.custo+1)
-        lista_nodos_sucessores.append(novoNodo)
-
-    return lista_nodos_sucessores
-
-
-
 if __name__ == '__main__':
 
     if len(sys.argv) < 2:
-        print("usage: avalia_expande.sh estado")
+        print("usage: avalia_sucessor.sh estado")
 
     else:
-        estado = sys.argv[1]
-        custo = int(sys.argv[2])
-
-        nodo = Node(None, estado, None, custo)
-        for item in expande(nodo):
-            print("("+item.acao+","+item.estado+","+str(item.custo)+","+item.pai.estado+")", end =" ")
+        for item in sucessor(sys.argv[1]):
+            print("("+item[0]+","+item[1]+")", end =" ")

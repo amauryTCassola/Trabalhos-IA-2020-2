@@ -146,8 +146,9 @@ def compute_heuristic_h1(node):
     estado_atual = node.estado
     custo_h1 = 0
     for index in range(0, len(estado_atual)):
-        if estado_atual[index] != estado_objetivo[index]:
-            custo_h1 += 1
+        if estado_atual[index] != vazio:
+            if estado_atual[index] != estado_objetivo[index]:
+                custo_h1 += 1
     return custo_h1
 
 def compute_heuristic(node):

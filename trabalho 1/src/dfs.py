@@ -1,6 +1,15 @@
 import sys
 
+class Node:
+    """Classe representando um nodo no grafo de busca"""
+    def __init__(self, pai, estado, acao, custo):
+        self.pai = pai
+        self.estado = estado
+        self.acao = acao
+        self.custo = custo
+
 vazio = "_"
+estado_objetivo = "12345678_"
 
 def acao_cima(estado):
     '''executa a ação de mover o espaço vazio para cima
@@ -82,18 +91,14 @@ def sucessor(estado):
     Argumentos:
     estado -- o estado atual do 8-puzzle, formatado como '12345678_'
 
-    123
-    456
-    78_
-
     Retorna: lista de pares (ação, estado)
 
     '''
     lista_sucessores = []
 
+    lista_sucessores.append(('direita', acao_direita(estado)))
     lista_sucessores.append(('acima', acao_cima(estado)))
     lista_sucessores.append(('abaixo', acao_baixo(estado)))
-    lista_sucessores.append(('direita', acao_direita(estado)))
     lista_sucessores.append(('esquerda', acao_esquerda(estado)))
 
     for sucessor_item in lista_sucessores:
@@ -102,11 +107,69 @@ def sucessor(estado):
 
     return lista_sucessores
 
+def expande(nodo):
+    '''
+    expande um nodo, retornando seus vizinhos
+
+    Argumentos:
+    nodo -- o nodo a ser expandido, respeitando a classe Node
+
+    Retorna: lista de nodos vizinhos
+    '''
+
+    lista_nodos_sucessores = []
+    lista_estados_sucessores = sucessor(nodo.estado)
+    for item in lista_estados_sucessores:
+        novoNodo = Node(nodo, item[1], item[0], nodo.custo+1)
+        lista_nodos_sucessores.append(novoNodo)
+
+    return lista_nodos_sucessores
+
+def node_in_list(node, list):
+    for item in list:
+        if item.estado == node.estado:
+            return True
+    return False
+
+def depth_first_search(s):
+    ''''
+    busca em profundidade (DFS)
+    Argumentos:
+    nodo
+    Retorna: caminho
+    '''
+    caminho = ""
+    x = []
+    f = []
+    f.append(s)
+    while f:
+        v = f.pop()
+        
+        if v.estado == estado_objetivo:
+            while v.acao != None:
+                caminho += v.acao + " "
+                v = v.pai
+            return(caminho)
+                
+
+        if not node_in_list(v,x):
+            x.append(v)
+            for item in expande(v):
+                f.append(item)
+                        
+
 if __name__ == '__main__':
 
     if len(sys.argv) < 2:
-        print("usage: avalia_sucessor.sh estado")
+        print("usage: avalia_dfs.sh estado")
 
     else:
-        for item in sucessor(sys.argv[1]):
-            print("("+item[0]+",\""+item[1]+"\")", end =" ")
+        estado = sys.argv[1]
+        custo = 0
+        nodo = Node(None, estado, None, custo)
+        
+        resultado = depth_first_search(nodo)
+        print(resultado)
+
+    
+        

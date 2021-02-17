@@ -1,5 +1,4 @@
 import sys
-import heapq
 
 class Node:
     """Classe representando um nodo no grafo de busca"""
@@ -9,11 +8,7 @@ class Node:
         self.acao = acao
         self.custo = custo
 
-    def __lt__(self, other):
-        return self.custo < other.custo
-
 vazio = "_"
-estado_objetivo = "12345678_"
 
 def acao_cima(estado):
     '''executa a ação de mover o espaço vazio para cima
@@ -129,81 +124,17 @@ def expande(nodo):
 
     return lista_nodos_sucessores
 
-def node_in_list(node, list):
-    for item in list:
-        if item.estado == node.estado:
-            return True
-    return False
 
-def push_node_into_heap(node, cost, heap):
-    heapq.heappush(heap, (cost, node))
-
-def pop_node_from_heap(heap):
-    heap_item = heapq.heappop(heap)
-    return heap_item[1]
-
-def calcula_distancia_manhattan(pos1, pos2):
-    x_pos1 = pos1 % 3 
-    '''resto da divisão inteira por 3'''
-    y_pos1 = pos1 // 3
-    '''floor da divisão inteira por 3'''
-
-    x_pos2 = pos2 % 3
-    y_pos2 = pos2 // 3
-
-    return abs(x_pos1 - x_pos2) + abs(y_pos1 - y_pos2)
-
-def compute_heuristic_h2(node):
-    estado_atual = node.estado
-    custo_h2 = 0
-    for index in range(0, len(estado_atual)):
-        caractere_atual = estado_atual[index]
-        if caractere_atual != "_":
-            index_objetivo = estado_objetivo.index(caractere_atual)
-            custo_h2 += calcula_distancia_manhattan(index, index_objetivo)
-    return custo_h2
-
-def compute_heuristic(node):
-    return compute_heuristic_h2(node)
-
-def a_star_search(s):
-    ''''
-    busca A*
-    Argumentos:
-    nodo
-    Retorna: caminho
-    '''
-    caminho = ""
-    x = []
-    f = []
-    push_node_into_heap(s, compute_heuristic(s), f)
-    while f:
-        v = pop_node_from_heap(f)
-        
-        if v.estado == estado_objetivo:
-            while v.acao != None:
-                caminho = v.acao + " " + caminho
-                v = v.pai
-            return(caminho)
-                
-        if not node_in_list(v,x):
-            x.append(v)
-            for item in expande(v):
-                push_node_into_heap(item, compute_heuristic(item)+item.custo, f)
-
-    return "FALHA"
 
 if __name__ == '__main__':
-    
-    if len(sys.argv) < 2:
-        print("usage: avalia_astar_h1.sh estado")
+
+    if len(sys.argv) < 3:
+        print("usage: avalia_expande.sh estado")
 
     else:
         estado = sys.argv[1]
-        custo = 0
+        custo = int(sys.argv[2])
+
         nodo = Node(None, estado, None, custo)
-        
-        print("h2: "+str(compute_heuristic(nodo)))
-        print("")
-        resultado = a_star_search(nodo)
-        print(resultado)
+        for item in expande(nodo):
+            print("("+item.acao+","+item.estado+","+str(item.custo)+","+item.pai.estado+")", end =" ")
