@@ -1,5 +1,5 @@
 import sys
-from collections import deque
+import heapq
 
 class Node:
     """Classe representando um nodo no grafo de busca"""
@@ -8,6 +8,9 @@ class Node:
         self.estado = estado
         self.acao = acao
         self.custo = custo
+
+    def __lt__(self, other):
+        return self.custo < other.custo
 
 vazio = "_"
 estado_objetivo = "12345678_"
@@ -97,9 +100,9 @@ def sucessor(estado):
     '''
     lista_sucessores = []
 
-    lista_sucessores.append(('direita', acao_direita(estado)))
     lista_sucessores.append(('acima', acao_cima(estado)))
     lista_sucessores.append(('abaixo', acao_baixo(estado)))
+    lista_sucessores.append(('direita', acao_direita(estado)))
     lista_sucessores.append(('esquerda', acao_esquerda(estado)))
 
     for sucessor_item in lista_sucessores:
@@ -132,9 +135,27 @@ def node_in_list(node, list):
             return True
     return False
 
-def depth_first_search(s):
+def push_node_into_heap(node, cost, heap):
+    heapq.heappush(heap, (cost, node))
+
+def pop_node_from_heap(heap):
+    heap_item = heapq.heappop(heap)
+    return heap_item[1]
+
+def compute_heuristic_h1(node):
+    estado_atual = node.estado
+    custo_h1 = 0
+    for index in range(0, len(estado_atual)):
+        if estado_atual[index] != estado_objetivo[index]:
+            custo_h1 += 1
+    return custo_h1
+
+def compute_heuristic(node):
+    return compute_heuristic_h1(node)
+
+def a_star_search(s):
     ''''
-    busca em largura (BFS)
+    busca A*
     Argumentos:
     nodo
     Retorna: caminho
@@ -142,34 +163,32 @@ def depth_first_search(s):
     caminho = ""
     x = []
     f = []
-    f.append(s)
+    push_node_into_heap(s, compute_heuristic(s), f)
     while f:
-        v = f.pop()
+        v = pop_node_from_heap(f)
         
         if v.estado == estado_objetivo:
             while v.acao != None:
-                caminho += v.acao + " "
+                caminho = v.acao + " " + caminho
                 v = v.pai
             return(caminho)
                 
-
         if not node_in_list(v,x):
             x.append(v)
             for item in expande(v):
-                f.append(item)
-                        
+                push_node_into_heap(item, compute_heuristic(item)+item.custo, f)
+
+    return "FALHA"
 
 if __name__ == '__main__':
 
     if len(sys.argv) < 2:
-        print("usage: avalia_dfs.sh estado")
+        print("usage: avalia_astar_h1.sh estado")
 
     else:
         estado = sys.argv[1]
         custo = 0
         nodo = Node(None, estado, None, custo)
         
-        resultado = depth_first_search(nodo)
+        resultado = a_star_search(nodo)
         print(resultado)
-    
-        

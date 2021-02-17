@@ -10,6 +10,7 @@ class Node:
         self.custo = custo
 
 vazio = "_"
+estado_objetivo = "12345678_"
 
 def acao_cima(estado):
     '''executa a ação de mover o espaço vazio para cima
@@ -125,7 +126,13 @@ def expande(nodo):
 
     return lista_nodos_sucessores
 
-def busca_grafo(s):
+def node_in_list(node, list):
+    for item in list:
+        if item.estado == node.estado:
+            return True
+    return False
+
+def breadth_first_search(s):
     ''''
     busca em largura (BFS)
     Argumentos:
@@ -139,35 +146,28 @@ def busca_grafo(s):
     while f:
         v = f.pop(0)
         
-        if v.estado == '12345678_':
+        if v.estado == estado_objetivo:
             while v.acao != None:
-                caminho += v.acao + " "
+                caminho = v.acao + " " + caminho
                 v = v.pai
             return(caminho)
                 
-        if not v in x:
+        if not node_in_list(v,x):
             x.append(v)
             for item in expande(v):
                 f.append(item)
 
+    return "FALHA"
+
 if __name__ == '__main__':
 
     if len(sys.argv) < 2:
-        print("usage: avalia_expande.sh estado")
+        print("usage: avalia_bfs.sh estado")
 
     else:
         estado = sys.argv[1]
-        '''
-        custo = int(sys.argv[2])
-        '''
         custo = 0
         nodo = Node(None, estado, None, custo)
         
-        resultado = busca_grafo(nodo)
+        resultado = breadth_first_search(nodo)
         print(resultado)
-    
-        '''
-        for item in expande(nodo):
-            print("("+item.acao+","+item.estado+","+str(item.custo)+","+item.pai.estado+")", end =" ")
-        '''
-        
