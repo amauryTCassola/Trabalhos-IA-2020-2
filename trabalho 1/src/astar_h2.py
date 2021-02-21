@@ -191,7 +191,7 @@ def a_star_search(s):
             for item in expande(v):
                 push_node_into_heap(item, compute_heuristic(item)+item.custo, f)
 
-    return "FALHA"
+    return ""
 
 if __name__ == '__main__':
     

@@ -125,12 +125,6 @@ def expande(nodo):
 
     return lista_nodos_sucessores
 
-def node_in_list(node, list):
-    for item in list:
-        if item.estado == node.estado:
-            return True
-    return False
-
 def breadth_first_search(s):
     ''''
     busca em largura (BFS)
@@ -139,7 +133,8 @@ def breadth_first_search(s):
     Retorna: caminho
     '''
     caminho = ""
-    x = []
+    x = {}
+    """implementamos a lista de estados explorados como um dicionário como forma de otimização, já que a busca em dicionários é de complexidade constante"""
     f = []
     f.append(s)
     while f:
@@ -151,12 +146,12 @@ def breadth_first_search(s):
                 v = v.pai
             return(caminho)
                 
-        if not node_in_list(v,x):
-            x.append(v)
+        if not v.estado in x:
+            x[v.estado] = v.estado
             for item in expande(v):
                 f.append(item)
 
-    return "FALHA"
+    return ""
 
 if __name__ == '__main__':
 

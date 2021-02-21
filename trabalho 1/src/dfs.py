@@ -125,12 +125,6 @@ def expande(nodo):
 
     return lista_nodos_sucessores
 
-def node_in_list(node, list):
-    for item in list:
-        if item.estado == node.estado:
-            return True
-    return False
-
 def depth_first_search(s):
     ''''
     busca em profundidade (DFS)
@@ -139,7 +133,7 @@ def depth_first_search(s):
     Retorna: caminho
     '''
     caminho = ""
-    x = []
+    x = {}
     f = []
     f.append(s)
     while f:
@@ -152,10 +146,11 @@ def depth_first_search(s):
             return(caminho)
                 
 
-        if not node_in_list(v,x):
-            x.append(v)
+        if not v.estado in x:
+            x[v.estado] = v.estado
             for item in expande(v):
                 f.append(item)
+    return ""
                         
 
 if __name__ == '__main__':
