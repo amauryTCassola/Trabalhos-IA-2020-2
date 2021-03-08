@@ -2,63 +2,13 @@ from constants import *
 from estado_othello import *
 from copy import deepcopy
 
-def check_line_match(who,dr,dc,r,c,board):
-    if board[r][c] == who: return True
-
-    if board[r][c] == empty: return False
-
-    next_position_row = r+dr
-    next_position_col = c+dc
-
-    if next_position_row < 0 or next_position_row > 7: return False
-    if next_position_col < 0 or next_position_col > 7: return False
-
-    return check_line_match(who,dr,dc,next_position_row,next_position_col,board)
-
-"""
-    Dada uma posição no tabuleiro [row, column] e uma direção [delta_row, delta_column]
-    partindo desta posição, checa se essa posição seria um movimento válido considerando
-    a direção informada. Primeiro checa se nesta direção há uma peça do oponente adjacente
-    e, se tiver, se, continuando em linha reta, eventualmente se chega a uma peça do jogador
-    sem passar por espaços em branco, assim trancando as peças do oponente entre duas
-    peças do jogador, o que configura uma jogada válida
-    
-"""
-def valid_move(who,delta_row,delta_column,row,column,board):
-    if who == blackChar: other = whiteChar
-    else: other = blackChar
-
-    next_position_row = row+delta_row
-    next_position_col = column+delta_column
-
-    '''checando se a posição seguinte não fica fora do tabuleiro'''
-    if next_position_row < 0 or next_position_row > 7: return False
-    if next_position_col < 0 or next_position_col > 7: return False
-
-    '''checando se a próxima posição contém uma peça do oponente'''
-    if board[next_position_row][next_position_col] != other: return False
-
-    '''checando se a próxima posição não fica numa beirada do tabuleiro'''
-    if next_position_row+delta_row < 0 or next_position_row+delta_row > 7: return False
-    if next_position_col+delta_column < 0 or next_position_col+delta_column > 7: return False
-
-    return check_line_match(who,delta_row,delta_column,next_position_row+delta_row,next_position_col+delta_column,board)
-
-def calculate_square_mobility(who,board,row,column):
-    nw = valid_move(who,-1,-1,row,column,board) #is it a valid move coming from north-west?
-    nn = valid_move(who,-1, 0,row,column,board)#is it a valid move coming from north?
-    ne = valid_move(who,-1, 1,row,column,board)#is it a valid move coming from north-east?
-
-    sw = valid_move(who,1,-1,row,column,board)#mesma coisa pra south
-    ss = valid_move(who,1, 0,row,column,board)
-    se = valid_move(who,1, 1,row,column,board)
-
-    e = valid_move(who,0, 1,row,column,board)#east
-    w = valid_move(who,0,-1,row,column,board)#west
-
-    return (nw or nn or ne or sw or ss or se or e or w)
-
 def flip_line(who,dr,dc,r,c,board):
+    #print("flip line")
+    #print("(r+dr, c+dc): ("+str(r+dr)+", "+str(c+dc)+")")
+    #print("conteudo: "+str(board[r+dr][c+dc]))
+    #input()
+    
+    
     if (r+dr < 0) or (r + dr > 7): 
         return False
     elif (c+dc < 0) or (c+dc > 7): 
@@ -80,26 +30,75 @@ def execute_move(who,board,row,column):
     board.insert(row,row_content)
 
     
-    flip_line(who, -1, -1,row,column,board)
-    flip_line(who, -1, 0,row,column,board)
-    flip_line(who, -1, 1,row,column,board)
-    
-    flip_line(who, 0, -1,row,column,board)
-    flip_line(who, 0, 1,row,column,board)
+    if not (flip_line(who, -1, -1,row,column,board) or
+            flip_line(who, -1, 0,row,column,board) or
+            flip_line(who, -1, 1,row,column,board) or
+            flip_line(who, 0, -1,row,column,board) or
+            flip_line(who, 0, 1,row,column,board) or
+            flip_line(who, 1, -1,row,column,board) or
+            flip_line(who, 1, 0,row,column,board) or
+            flip_line(who, 1, 1,row,column,board)):
+        row_content = board.pop(row)
+        row_content[column] = empty
+        board.insert(row,row_content)
+        return False
+    return True
 
-    flip_line(who, 1, -1,row,column,board)
-    flip_line(who, 1, 0,row,column,board)
-    flip_line(who, 1, 1,row,column,board)
+def get_empty_adjacents(board,row,col):
+
+    adjacent_coords = [ [row-1, col-1], [row-1, col], [row-1, col+1], 
+                        [row, col-1],                 [row, col+1],
+                        [row+1, col-1], [row+1, col], [row+1, col+1]]
+
+    empty_adjacents = []
+
+    for coords in adjacent_coords:
+        if (not coords[0] < 0) and (not coords[0] > 7) and (not coords[1] < 0) and (not coords[1] > 7):
+            if board[coords[0]][coords[1]] == empty:
+                empty_adjacents.append((coords[0], coords[1]))
+
+    return empty_adjacents
+
+def get_velocity_between(x1,y1,x2,y2):
+    xv = 0
+    if x1 != x2:
+        if x1 > x2:
+            xv = -1
+        else:
+            xv = 1
+    
+    yv = 0
+    if y1 != y2:
+        if y1 > y2:
+            yv = -1
+        else:
+            yv = 1
+
+    return (xv,yv)
 
 def sucessores(estado, cor):
+    if cor == blackChar: other_color = whiteChar
+    else: other_color = blackChar
+
     sucessores_list = []
     tabuleiro = estado.tabuleiro
     for row in range(len(tabuleiro)):
         for column in range(len(tabuleiro[row])):
-            if tabuleiro[row][column] == empty:
-                if calculate_square_mobility(cor,tabuleiro,row,column):
+            if tabuleiro[row][column] == other_color:
+                empty_adjacents = get_empty_adjacents(tabuleiro,row,column)
+                #print("cor: "+str(cor))
+                #print("branca: "+str((row,column)))
+                new_board = deepcopy(tabuleiro)
+                for adj in empty_adjacents:
+                    (dx,dv) = get_velocity_between(adj[0],adj[1],row,column)
+                    #print(str((dx,dv)))
                     new_board = deepcopy(tabuleiro)
-                    execute_move(cor, new_board, row, column)
-                    novo_estado = Estado_othello(estado, new_board, (row,column), 0)
-                    sucessores_list.append(novo_estado)
+
+                    #print("espaço: ("+str(adj[0])+", "+str(adj[1])+")")
+                    if flip_line(cor, dx, dv, adj[0], adj[1], new_board):
+                        #print("VALIDO")
+                        #input()
+                        novo_estado = Estado_othello(estado, new_board, (adj[0],adj[1]), 0)
+                        sucessores_list.append(novo_estado)
+
     return sucessores_list

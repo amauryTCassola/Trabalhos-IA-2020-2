@@ -5,6 +5,8 @@ import heapq
 from sucessores import sucessores
 from constants import *
 
+import traceback
+
 #TRANSPOSITION TABLE
 #dict de estados já encontrados, pra n precisar avaliar eles de novo
 transposition_table = {}
@@ -20,21 +22,23 @@ successores_estado_atual = []
 #play(bestmove);
 
 def teste_de_corte(cur_depth, max_depth):
-    return cur_depth == max_depth
+    return cur_depth >= max_depth
 
 def decisao_minimax_alfa_beta(estado, profundidade):
     (v, x, y) = valor_max(estado,neg_infinity,pos_infinity,0,profundidade) 
+    
     return (x,y)
 
 def valor_max(estado, alfa, beta, cur_depth, max_depth):
     px = None
     py = None
-    
+
     if teste_de_corte(cur_depth, max_depth):
         return (avalia(estado), estado.movimento[0], estado.movimento[1])
     for s in sucessores(estado, color_max):
         (min_v, min_x, min_y) = valor_min(s,alfa,beta, cur_depth+1, max_depth)
-        if min_v > alfa:
+        
+        if min_v > alfa and min_v != pos_infinity: #nao sei pq esse bug acontece
             alfa = min_v
             px = s.movimento[0]
             py = s.movimento[1]
@@ -43,32 +47,36 @@ def valor_max(estado, alfa, beta, cur_depth, max_depth):
     return (alfa, px, py)
 
 def valor_min(estado, alfa, beta, cur_depth, max_depth):
-    px = None
-    py = None
+    qx = None
+    qy = None
     
     if teste_de_corte(cur_depth, max_depth):
         return (avalia(estado), estado.movimento[0], estado.movimento[1])
     for s in sucessores(estado, color_min):
+
         (max_v, max_x, max_y) = valor_max(s, alfa, beta, cur_depth+1, max_depth)
-        
-        if max_v < beta:
+
+        if max_v < beta and max_v != neg_infinity: #nao sei pq esse bug acontece
             beta = max_v
-            px = s.movimento[0]
-            py = s.movimento[1]
+            qx = s.movimento[0]
+            qy = s.movimento[1]
         
-        if alfa > beta:
-            return (beta, px, py)
-    return (beta, px, py)
+        if alfa > beta: return (beta, qx, qy)
+
+    return (beta, qx, qy)
 
 def avalia(estado):
-    if not str(estado.tabuleiro) in transposition_table:
-        valor = heuristics(estado, color_max, is_static)
-        transposition_table[str(estado.tabuleiro)] = valor
 
-    return transposition_table[str(estado.tabuleiro)]
+    key = ''.join(ele for sub in estado.tabuleiro for ele in sub)
+
+    if not key in transposition_table:
+        valor = heuristics(estado, color_max, is_static)
+        transposition_table[key] = valor
+
+    return transposition_table[key]
 
 def iterative_deepening(estado):
-    print(str(decisao_minimax_alfa_beta(estado, 6)))
+    print(str(decisao_minimax_alfa_beta(estado, 4)))
 
 
 
