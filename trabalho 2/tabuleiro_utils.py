@@ -2,7 +2,7 @@ from estado_othello import Estado_othello
 
 def string_to_matrix(string):
     line_list = string.splitlines()
-    res = [list(sub) for sub in line_list] 
+    res = [list(sub) for sub in line_list][:8]
     return res
 
 def ler_tabuleiro(filename):
