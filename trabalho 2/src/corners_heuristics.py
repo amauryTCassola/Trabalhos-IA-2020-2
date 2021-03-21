@@ -40,8 +40,9 @@ def checkPossible(board,color_max,color_min):
 def calcValue(capturedMax,capturedMin,possibleMax,possibleMin):
     maxCornerHeuristic = 0.6*capturedMax + 0.4*possibleMax
     minCornerHeuristic = 0.6*capturedMin + 0.4*possibleMin
-    cornerHeuristicVal = 100*(maxCornerHeuristic-minCornerHeuristic)/(maxCornerHeuristic+minCornerHeuristic)
-
+    if maxCornerHeuristic+minCornerHeuristic > 0:
+        cornerHeuristicVal = 100*(maxCornerHeuristic-minCornerHeuristic)/(maxCornerHeuristic+minCornerHeuristic)
+    else: cornerHeuristicVal = 0
     return(cornerHeuristicVal)
 
 def corners_heuristic(board, color_max, weight):

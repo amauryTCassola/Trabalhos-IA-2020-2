@@ -1,7 +1,8 @@
 from constants import *
+import numpy as np
 
 def coin_count(current_state, char):
-    return str(current_state).count(char)
+    return np.count_nonzero(current_state == char)
 
 def coin_parity_heuristic(board, color_max, weight):
     if color_max == blackChar: color_min = whiteChar

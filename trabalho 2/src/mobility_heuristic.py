@@ -1,4 +1,5 @@
 from constants import *
+import numpy as np
 
 def check_line_match(who,dr,dc,r,c,board):
     if board[r][c] == who: return True
@@ -61,8 +62,8 @@ def calculate_valid_moves(who,board):
     for row in range(len(board)):
         for column in range(len(board[row])):
             if board[row][column] == empty:
-                if calculate_square_mobility(who,board,row,column):
-                    valid_moves_count += 1
+                    if calculate_square_mobility(who,board,row,column):
+                        valid_moves_count += 1
                     
     return valid_moves_count
 

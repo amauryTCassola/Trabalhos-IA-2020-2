@@ -1,9 +1,7 @@
 class Estado_othello:
-    def __init__(self, pai, tabuleiro, movimento, valor):
-        self.pai = pai
+    def __init__(self, tabuleiro, movimento):
         self.tabuleiro = tabuleiro
         self.movimento = movimento
-        self.valor = valor
 
     def __lt__(self, other):
         return self.custo < other.custo

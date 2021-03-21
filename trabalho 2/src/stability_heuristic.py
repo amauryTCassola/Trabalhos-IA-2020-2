@@ -1,13 +1,14 @@
 from constants import *
-from mobility_heuristic import calculate_square_mobility
+import numpy as np
+
 
 def is_edge(x,y):
     return (x == 0 or x == 7 or y == 0 or y == 7)
 
 def is_adjacent_to_stable_edge_of_same_color(stability_board, board, row, col):
-    adjacent_coords = [ [row-1, col-1], [row-1, col], [row-1, col+1], 
+    adjacent_coords = np.array([ [row-1, col-1], [row-1, col], [row-1, col+1], 
                         [row, col-1],                 [row, col+1],
-                        [row+1, col-1], [row+1, col], [row+1, col+1]]
+                        [row+1, col-1], [row+1, col], [row+1, col+1]])
 
     result = False
     color = board[row][col]

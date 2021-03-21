@@ -1,8 +1,12 @@
 from estado_othello import Estado_othello
+import numpy
 
 def string_to_matrix(string):
+
     line_list = string.splitlines()
-    res = [list(sub) for sub in line_list][:8]
+
+    res = numpy.array([ list(word) for word in line_list ])
+
     return res
 
 def ler_tabuleiro(filename):
@@ -11,5 +15,5 @@ def ler_tabuleiro(filename):
     do tabuleiro com a estrutura definida em estado-othello.py
     """
     f = open(filename, "r")
-    estado = Estado_othello(None, string_to_matrix(f.read()), None, 0)
+    estado = Estado_othello(string_to_matrix(f.read()), None)
     return estado
