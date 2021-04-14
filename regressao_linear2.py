@@ -24,10 +24,9 @@ def compute_cost(theta_0, theta_1, theta_2, x, y, z):
     
     Args:
         theta_0 (float): intercepto da reta 
-        theta_1 (float): multiplica
-        theta_2 (float): multiplica
-        data (np.array): matriz com o conjunto de dados, x na coluna 0 e y na coluna 1
-    
+        theta_1 (float): parâmetro que multiplica x
+        theta_2 (float): parâmetro que multiplica z
+        x,y,x: valores
     Retorna:
         float: o erro quadratico medio
     """
@@ -41,7 +40,10 @@ def compute_cost(theta_0, theta_1, theta_2, x, y, z):
     for i in range(n):
       total_cost += ((theta_0 + (theta_1 * x[i]) + (theta_2 * z[i])) - y[i]) ** 2
     
+
     total_cost = (1/n)*total_cost
+    
+    
     
     return total_cost
 
@@ -53,11 +55,12 @@ def step_gradient(theta_0_current, theta_1_current, theta_2_current, x, y, z, al
     Args:
         theta_0_current (float): valor atual de theta_0
         theta_1_current (float): valor atual de theta_1
-        data (np.array): vetor com dados de treinamento (x,y)
+        theta_2_current (float): valor atual de theta_2
+        x,y,z: vetor com dados de treinamento (x,y,z)
         alpha (float): taxa de aprendizado / tamanho do passo 
     
     Retorna:
-        tupla: (theta_0, theta_1) os novos valores de theta_0, theta_1
+        tupla: (theta_0, theta_1, theta_2) os novos valores de theta_0, theta_1, theta_2
     """
     
     theta_0_updated = 0
@@ -78,7 +81,7 @@ def step_gradient(theta_0_current, theta_1_current, theta_2_current, x, y, z, al
       derivada_2 += ((theta_0_current + (theta_1_current * x[i]) + (theta_2_current * z[i])) - y[i])*z[i]
     derivada_0=(2/n)*derivada_0
     derivada_1=(2/n)*derivada_1 
-    derivada_2=(2/n)*derivada_1 
+    derivada_2=(2/n)*derivada_2 
     
     
     theta_0_updated = theta_0_current - (alpha * derivada_0)
@@ -90,13 +93,14 @@ def step_gradient(theta_0_current, theta_1_current, theta_2_current, x, y, z, al
     return theta_0_updated, theta_1_updated, theta_2_updated
 
 
-def gradient_descent(data, starting_theta_0, starting_theta_1, starting_theta_2, learning_rate, num_iterations):
+def gradient_descent(x, y, z, starting_theta_0, starting_theta_1, starting_theta_2, learning_rate, num_iterations):
     """executa a descida do gradiente
     
     Args:
-        data (np.array): dados de treinamento, x na coluna 0 e y na coluna 1
+        x,y,z: dados de treinamento, x, y e z
         starting_theta_0 (float): valor inicial de theta0 
         starting_theta_1 (float): valor inicial de theta1
+        starting_theta_2 (float): valor inicial de theta2
         learning_rate (float): hyperparâmetro para ajustar o tamanho do passo durante a descida do gradiente
         num_iterations (int): hyperparâmetro que decide o número de iterações que cada descida de gradiente irá executar
     
@@ -132,6 +136,17 @@ def gradient_descent(data, starting_theta_0, starting_theta_1, starting_theta_2,
     return [theta_0, theta_1, theta_2, cost_graph, theta_0_progress, theta_1_progress, theta_2_progress]
 
 """#### Executa a função gradient_descent() para obter os parâmetros otimizados, Theta0 e Theta1."""
+def normaliza(norm):
+    norm_max = np.amax(norm)
+    norm_min = np.amin(norm)
+    for i in (range(len(norm))):
+            norm[i] = (norm[i] - norm_min) / (norm_max - norm_min)
+    return norm
+
+def animate(i,theta_0_prog,theta_1_prog):
+    pred = theta_1_prog[i] * x + theta_0_prog[i]
+    line.set_data(x,pred)
+    return line,
 
 if __name__ == '__main__':
 
@@ -148,14 +163,10 @@ if __name__ == '__main__':
         y = np.array(data[1:,80])
         z = np.array(data[1:,17])
 
-        x_max = np.amax(x)
-        x_min = np.amin(x)
-
+        x = normaliza(x)
+        z = normaliza(z)
         
-
-        for i in (range(len(x))):
-            x[i] = (x[i] - x_min) / (x_max - x_min)
-
+        
 #Gráfico dos dados
         plt.figure(figsize=(10, 6))
         plt.scatter(x,y)
@@ -164,7 +175,7 @@ if __name__ == '__main__':
         plt.title('Dados')
         plt.show()
 
-        theta_0, theta_1, theta_2, cost_graph, theta_0_progress, theta_1_progress, theta_2_progress = gradient_descent(data, starting_theta_0=0, starting_theta_1=0, starting_theta_2=0, learning_rate=0, num_iterations=iter)
+        theta_0, theta_1, theta_2, cost_graph, theta_0_progress, theta_1_progress, theta_2_progress = gradient_descent(x, y, z, starting_theta_0=0, starting_theta_1=0, starting_theta_2=0, learning_rate=0, num_iterations=iter)
 
         #Imprimir parâmetros otimizados
         print ('Theta_0: ', theta_0)
@@ -188,12 +199,12 @@ if __name__ == '__main__':
         #### Gráfico de linha com melhor ajuste
         """
 
-#Gráfico de dispersão do conjunto de dados
+        #Gráfico de dispersão do conjunto de dados
         plt.figure(figsize=(10, 6))
         plt.scatter(x, y)
-#Valores preditos de y
+        #Valores preditos de y
         pred = theta_1 * x + theta_0
-#Gráfico de linha do melhor ajuste
+        #Gráfico de linha do melhor ajuste
         plt.plot(x, pred, c='r')
         plt.xlabel('GrLivArea')
         plt.ylabel('Sale Price')
@@ -212,12 +223,9 @@ if __name__ == '__main__':
         
         line = ax.plot(x,pred, '-',c='r')[0]
 
-def animate(i,theta_0_prog,theta_1_prog):
-    pred = theta_1_prog[i] * x + theta_0_prog[i]
-    line.set_data(x,pred)
-    return line,
 
-    ani = animation.FuncAnimation(fig, animate, frames=len(theta_0_progress), fargs=(theta_0_progress,theta_1_progress,))
-    ax.scatter(x,y)
-    HTML(ani.to_jshtml())
+
+        ani = animation.FuncAnimation(fig, animate, frames=len(theta_0_progress), fargs=(theta_0_progress,theta_1_progress,))
+        ax.scatter(x,y)
+        HTML(ani.to_jshtml())
 
