@@ -41,6 +41,8 @@ class QLearningAgent(ReinforcementAgent):
     def __init__(self, **args):
         "You can initialize Q-values here..."
         ReinforcementAgent.__init__(self, **args)
+        self.q_values = util.Counter()
+
 
         "*** YOUR CODE HERE ***"
 
@@ -51,7 +53,7 @@ class QLearningAgent(ReinforcementAgent):
           or the Q node value otherwise
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.q_values[(state, action)]
 
 
     def computeValueFromQValues(self, state):
@@ -62,7 +64,13 @@ class QLearningAgent(ReinforcementAgent):
           terminal state, you should return a value of 0.0.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        legalActions = self.getLegalActions(state)
+        if len(legalActions)==0:
+          return 0.0
+        tmp = util.Counter()
+        for action in legalActions:
+          tmp[action] = self.getQValue(state, action)
+        return tmp[tmp.argMax()] 
 
     def computeActionFromQValues(self, state):
         """
@@ -71,7 +79,15 @@ class QLearningAgent(ReinforcementAgent):
           you should return None.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        actions = self.getLegalActions(state)
+        best_action = None
+        max_val = float('-inf')
+        for action in actions:
+          q_value = self.q_values[(state, action)]
+          if max_val < q_value:
+            max_val = q_value
+            best_action = action
+        return best_action
 
     def getAction(self, state):
         """
